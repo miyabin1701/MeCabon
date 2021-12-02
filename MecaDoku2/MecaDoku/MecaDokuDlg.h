@@ -145,4 +145,5 @@ public:
 protected:
 public:
 	afx_msg UINT OnPowerBroadcast(UINT nPowerEvent, UINT nEventData);
+	afx_msg void OnClose();
 };

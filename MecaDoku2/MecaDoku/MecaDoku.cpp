@@ -55,6 +55,7 @@ TTSNAME		SelectTts = SAPI54;
 struct SAPI54SETTING	sapi54 = { 0, 10, 0, 0, 50, NULL };
 wchar_t	*lpszRecentFile	= NULL;
 extern int	iNxtLineNo;
+extern wchar_t *exchgFileName( wchar_t *pszDest, wchar_t *pszPath, wchar_t *pszfileName );
 
 
 // CMecaDokuApp
@@ -142,7 +143,10 @@ BOOL CMecaDokuApp::InitInstance()
 
 void CMecaDokuApp::LoadProfile()
 {	wchar_t	RecentFile[_MAX_PATH];
+	wchar_t	selfpath[_MAX_PATH], *p;
 
+    ::GetModuleFileName( NULL, selfpath, sizeof( selfpath ));
+	exchgFileName( selfpath, selfpath, L"mecab-0.996\\work\\final" );		// 21/12/02
 	editcharHeight = ( long )GetProfileInt( lpszEnvSection, lpszeditcharHeight, -10 );
 	SelectTts = ( TTSNAME )GetProfileInt( lpszEnvSection, lpszSelectTts, 0 );
 	sapi54.iRate = ( long )GetProfileInt( lpszEnvSection, lpszsapi54iRate, 0 );
@@ -152,8 +156,15 @@ void CMecaDokuApp::LoadProfile()
 	sapi54.iMuonMs = ( long )GetProfileInt( lpszEnvSection, lpszsapi54iMuonMs, 50 );
 	wcscpy_s( szMeCabExe, lengthof( szMeCabExe ), ( LPCTSTR )GetProfileString( lpszEnvSection, lpszMeCabPath, L"C:\\Program Files (x86)\\MeCab\\bin\\mecab.exe" ));	//21/12/01
 //	wcscpy_s( szMeCabExe, lengthof( szMeCabExe ), ( LPCTSTR )GetProfileString( lpszEnvSection, lpszMeCabPath, L".\\mecab-0.996\\bin\\mecab.exe" ));
-	wcscpy_s( szSysDictionary, lengthof( szSysDictionary ), ( LPCTSTR )GetProfileString( lpszEnvSection, lpszSysDic, L".\\mecab-0.996\\work\\final" ));
-	wcscpy_s( szSysDicWork, lengthof( szSysDicWork ), ( LPCTSTR )GetProfileString( lpszEnvSection, lpszSysDicWork, L".\\mecab-0.996\\work" ));
+//	wcscpy_s( szSysDictionary, lengthof( szSysDictionary ), ( LPCTSTR )GetProfileString( lpszEnvSection, lpszSysDic, L".\\mecab-0.996\\work\\final" ));
+	wcscpy_s( szSysDictionary, lengthof( szSysDictionary ), ( LPCTSTR )GetProfileString( lpszEnvSection, lpszSysDic, selfpath ));
+//	wcscpy_s( szSysDicWork, lengthof( szSysDicWork ), ( LPCTSTR )GetProfileString( lpszEnvSection, lpszSysDicWork, L".\\mecab-0.996\\work" ));
+	exchgFileName( selfpath, selfpath, L"" );			// 21/12/02
+	if (( p = wcsrchr( selfpath, L'\\' )) != NULL )
+	{	if ( *( p + 1 ) == L'\0' )
+		{	*p = L'\0';
+	}	}
+	wcscpy_s( szSysDicWork, lengthof( szSysDicWork ), ( LPCTSTR )GetProfileString( lpszEnvSection, lpszSysDicWork, selfpath ));
 	wcscpy_s( szUserDicCsv, lengthof( szUserDicCsv ), ( LPCTSTR )GetProfileString( lpszEnvSection, lpszUserCsv, L"" ));
 	wcscpy_s( szUserDictionary, lengthof( szUserDictionary ), ( LPCTSTR )GetProfileString( lpszEnvSection, lpszUserDic, L"" ));
 	wcscpy_s( szTextEditor, lengthof( szTextEditor ), ( LPCTSTR )GetProfileString( lpszEnvSection, lpszTextEditor, L"notepad++.exe" ));

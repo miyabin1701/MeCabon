@@ -344,6 +344,7 @@ BEGIN_MESSAGE_MAP(CMecaDokuDlg, CDialogEx)
 	ON_COMMAND(ID__KIGOUPASS, &CMecaDokuDlg::OnKigoupass)
 	ON_COMMAND(WM_LOADRECENTFILE, &CMecaDokuDlg::OnLoadrecentfile)
 	ON_WM_POWERBROADCAST()
+	ON_WM_CLOSE()
 END_MESSAGE_MAP()
 
 
@@ -775,7 +776,9 @@ void CMecaDokuDlg::OnClickedDictionaly()
 
 
 void CMecaDokuDlg::OnDestroy()
-{	CMecaDokuApp *lpApp = ( CMecaDokuApp * )AfxGetApp();
+{
+#if 0
+	CMecaDokuApp *lpApp = ( CMecaDokuApp * )AfxGetApp();
 	int i;
 #if 1
 	CHARFORMAT2 cf;
@@ -820,12 +823,13 @@ void CMecaDokuDlg::OnDestroy()
 
 	editFont.DeleteObject();
 	DeleteCriticalSection( &csQueCnt );
-	CDialogEx::OnDestroy();
 	lpApp->SaveProfile();
 	if ( lpszRecentFile	!= NULL )
 	{	free( lpszRecentFile );
 	}
 	EndWaitCursor();
+#endif
+	CDialogEx::OnDestroy();
 }
 
 
@@ -1608,6 +1612,61 @@ void CMecaDokuDlg::OnLoadrecentfile()
 		}
 		EndWaitCursor();
 	}
+}
+
+
+void CMecaDokuDlg::OnClose()
+{	CMecaDokuApp *lpApp = ( CMecaDokuApp * )AfxGetApp();
+	int i;
+#if 1
+	CHARFORMAT2 cf;
+	DWORD dwMask;
+
+	memset(( void * )&cf, 0, sizeof( cf ));
+	dwMask = PlayTextEdit.GetDefaultCharFormat( cf );
+	editcharHeight = cf.yHeight;
+#else
+	LOGFONT LogFont;
+
+	if ( editFont.GetLogFont( &LogFont ) != 0 )
+	{	editcharHeight = LogFont.lfHeight;
+	}
+#endif
+	BeginWaitCursor();
+	if ( pThread != NULL )
+	{	iPlayState = STOP;
+		WaitForSingleObject( pThread->m_hThread, INFINITE );
+	}
+//	for ( i = 0; i < lengthof( lb ); i++ )
+//	{	if ( lb[i].pszLineBuf != NULL )
+//		{	free( lb[i].pszLineBuf );
+//	}	}
+	for ( i = 0; i < lengthof( LineQue ); i++ )
+	{	if ( LineQue[i].pszLine != NULL )
+		{	free( LineQue[i].pszLine );
+	}	}
+	 
+	pSarchCsv->DestroyWindow();
+	delete pSarchCsv;
+	pCorpasDlg->DestroyWindow();
+	delete pCorpasDlg;
+
+//	pSetting->DestroyWindow();
+//	delete pSetting;
+//	pUserDict->DestroyWindow();
+//	delete pUserDict;
+
+	pSettingTab->DestroyWindow();
+	delete pSettingTab;
+
+	editFont.DeleteObject();
+	DeleteCriticalSection( &csQueCnt );
+	lpApp->SaveProfile();
+	if ( lpszRecentFile	!= NULL )
+	{	free( lpszRecentFile );
+	}
+	EndWaitCursor();
+	CDialogEx::OnClose();
 }
 
 
