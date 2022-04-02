@@ -24,6 +24,11 @@
 	のは通常の事と考える。SAPIは短文節の連続呼び出しでも問題無いよう改善してほしい。
 	また、Wave生成にパイプを使用できるようにもSAPIを改善してほしいものだ。
 	名前付きパイプにWave出力したところSpeak()から戻ってこなかった。
+//
+// VoiceVox SAPIForVOICEVOX 対応 
+// SAPIで数字列変換時１０など１桁目が０の時じゅうれいと発声した。修正
+// 下位桁が全て０の時を考慮が必要か
+//
 */
 
 #include "stdafx.h"
@@ -258,7 +263,7 @@ void num2yomi( char *pszYomi, int cbYomi, char *szNumbers )
 			"\xE3\x82\xAC\xE3\x82\xA4",			//		千垓センガイ
 //		"",										// ^24	
 	};
-	int cbSeisuubu, cbStore;
+	int cbSeisuubu, cbSeisuubuCpy, cbStore;
 	char *pszSrc, *pszDst, *p;
 
 	for ( pszSrc = szNumbers, cbStore = cbSeisuubu = 0;
@@ -267,6 +272,7 @@ void num2yomi( char *pszYomi, int cbYomi, char *szNumbers )
 	}
 	*( pszDst = pszYomi ) = EOS;
 	cbYomi--;			// 終端分 
+	cbSeisuubuCpy = cbSeisuubu;
 	for ( pszSrc = szNumbers; *pszSrc != EOS; pszSrc++ )
 	{	if ( isdigit( *pszSrc ))
 		{	if ( cbSeisuubu > 1 )
@@ -288,12 +294,13 @@ void num2yomi( char *pszYomi, int cbYomi, char *szNumbers )
 				cbSeisuubu--;
 			}
 			else
-			{	p = szDigitYomi[*pszSrc - '0'];
-				if (( cbStore += ( int )strlen( p )) >= cbYomi )
-				{	break;
-				}
-				strcat( pszDst, szDigitYomi[*pszSrc - '0']);
-		}	}
+			{	if (( *pszSrc != '0' ) || ( cbSeisuubuCpy == 1 ))	// '0'で無いか、1桁の'0'なら発音 
+				{	p = szDigitYomi[*pszSrc - '0'];
+					if (( cbStore += ( int )strlen( p )) >= cbYomi )
+					{	break;
+					}
+					strcat( pszDst, szDigitYomi[*pszSrc - '0']);
+		}	}	}
 		else if ( *pszSrc == '.' )
 		{	strcat( pszDst, "\xE3\x83\x86\xE3\x83\xB3"/*u8"テン"*/ );
 		}

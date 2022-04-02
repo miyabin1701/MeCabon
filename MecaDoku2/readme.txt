@@ -327,3 +327,10 @@ https://qiita.com/aki___/items/2b62486d59c7b74f27ec
 
 この点が全てであるような気がしています。
 
+
+　作者への連絡先：　https://github.com/miyabin1701/MeCabon/discussions
+
+　よろしくお願いします。
+
+
+

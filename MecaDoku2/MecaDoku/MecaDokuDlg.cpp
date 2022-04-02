@@ -1,7 +1,9 @@
 
 // MecaDokuDlg.cpp : 実装ファイル
 //
-
+// 再生中にWM_CLOSEが来た際、クリティカルセクションを削除するが
+// その後次の再生テキスト取得メッセージが来てクリティカルセクションにアクセスしエクセプションが発生する対策
+//
 #include "stdafx.h"
 #include "MecaDoku.h"
 #include "MecaDokuDlg.h"
@@ -201,6 +203,9 @@ afx_msg LRESULT CMecaDokuDlg::OnUmRequestNextline(WPARAM wParam, LPARAM lParam)
 	if ( iQueCnt >= ( _MAX_QUE - 1 ))
 	{	return 0;
 	}
+	if ( fgEcxec != TRUE )		// OnClose()後にメッセージが来て例外発生のため… 
+	{	return 0;
+	}
 	for ( ; ( iLineLen = splitSentence( szLineBuild )) <= 0; iNxtLineNo++ )
 	{	if ( iNxtLineNo >= ( iLineLen = PlayTextEdit.GetLineCount()))
 		{	iPlayState = PRESTOP;
@@ -240,11 +245,11 @@ afx_msg LRESULT CMecaDokuDlg::OnUmRequestNextline(WPARAM wParam, LPARAM lParam)
 	wcscpy( &( szLineBuild[0]), &( szLineBuild[iLineLen/* + 1*/]));
 //	szLineBuild[iLineLen/* + 1*/] = '\0';
 	iQueIn = ( iQueIn + 1 ) % lengthof( LineQue );
-	EnterCriticalSection( &csQueCnt );
 	if ( iPlayState != STOP )
-	{	iQueCnt++;
+	{	EnterCriticalSection( &csQueCnt );
+		iQueCnt++;
+		LeaveCriticalSection( &csQueCnt );
 	}
-	LeaveCriticalSection( &csQueCnt );
 	return 0;
 }
 
@@ -293,6 +298,7 @@ CMecaDokuDlg::CMecaDokuDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CMecaDokuDlg::IDD, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+	fgEcxec = TRUE;
 }
 
 void CMecaDokuDlg::DoDataExchange(CDataExchange* pDX)
@@ -1622,6 +1628,7 @@ void CMecaDokuDlg::OnClose()
 	CHARFORMAT2 cf;
 	DWORD dwMask;
 
+	fgEcxec = FALSE;
 	memset(( void * )&cf, 0, sizeof( cf ));
 	dwMask = PlayTextEdit.GetDefaultCharFormat( cf );
 	editcharHeight = cf.yHeight;

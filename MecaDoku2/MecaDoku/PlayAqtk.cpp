@@ -1,6 +1,8 @@
 ﻿
 // MecaDokuDlg.cpp : 実装ファイル
 //
+// VoiceVox SAPIForVOICEVOX 対応 
+//
 
 #include "stdafx.h"
 #include "MecaDoku.h"
@@ -62,6 +64,7 @@ void __stdcall			StaticWaveOutProc( HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstanc
 extern wchar_t *m_szWFileName;	// grobal for free
 extern struct SAPI54SETTING	sapi54;
 extern wchar_t *exchgFileName( wchar_t *pszDest, wchar_t *pszPath, wchar_t *pszfileName );
+extern wchar_t *pszRegistryEntry[];
 
 
 //#define	MAX_LINE	4096
@@ -1086,7 +1089,17 @@ struct mecab_dictionary_info_t {
 		}
 		HRESULT hr = CoCreateInstance( CLSID_SpVoice, NULL, CLSCTX_ALL, IID_ISpVoice, ( void ** )&pVoice );
 		if ( SUCCEEDED( hr ))		// Voice を指定します。
-		{	hr = SpEnumTokens( L"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Speech_OneCore\\Voices", sapi54.pszVoiceName, NULL, &cpEnum );	//Cortana voice
+		{	int i;
+
+			for ( i = 0;  pszRegistryEntry[i] != NULL; i++ )
+			{	hr = SpEnumTokens( pszRegistryEntry[i], sapi54.pszVoiceName, NULL, &cpEnum );	//Cortana voice
+				if ( cpEnum != NULL )
+				{	break;
+			}	}
+			if ( cpEnum == NULL )
+			{	// 指定のVoiceが見つからなかったら・・・
+			}
+//			hr = SpEnumTokens( L"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Speech_OneCore\\Voices", sapi54.pszVoiceName, NULL, &cpEnum );	//Cortana voice
 //			hr = SpEnumTokens( SPCAT_VOICES, L"language = 411", NULL, &cpEnum );	// 属性L "language = 411"の音声トークンを列挙します。
 //			hr = SpEnumTokens( L"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Speech_OneCore\\Voices", L"Language = 411", NULL, &cpEnum );		//Cortana voice
 ///			hr = SpEnumTokens( L"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Speech Server\\v11.0\\Voices", L"Language = 411", NULL, &cpEnum ); //Speech Platform v11.0 (Required runtime)

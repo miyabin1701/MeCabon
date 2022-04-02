@@ -1,5 +1,7 @@
 // Setting_Sapi54.cpp : 実装ファイル
 //
+// VoiceVox SAPIForVOICEVOX 対応 
+//
 
 #include "stdafx.h"
 #include "MecaDoku.h"
@@ -9,6 +11,13 @@
 #include <sphelper.h>
 
 extern struct SAPI54SETTING	sapi54;
+wchar_t *pszRegistryEntry[] =
+{	SPCAT_VOICES,
+	L"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Speech_OneCore\\Voices",
+	L"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Speech Server\\v11.0\\Voices",
+	NULL
+};
+
 
 // CSetting_Sapi54 ダイアログ
 
@@ -65,16 +74,60 @@ wchar_t *RegGetString( HKEY hKey, const wchar_t *subKey, const wchar_t *value )
 }
 
 
+int makeVoiceListAdd( CComboBox *p_VoiceSel, wchar_t *pszEntry )
+{	CComPtr<ISpObjectTokenCategory> cpSpCategory = NULL;
+    CComPtr<IEnumSpObjectTokens>	cpSpEnumTokens;
+	CComPtr<ISpObjectToken>			tok[64];
+	HRESULT hr;
+	ULONG i, n, cnt;
+    LPWSTR ws;
+	WCHAR *pName, *pGender, *pLanguage, *pAge, buf[1024];
+
+
+	if ( S_OK != ( hr = SpGetCategoryFromId( pszEntry, &cpSpCategory )))
+	{	return( -1 );
+	}
+	if ( S_OK != ( hr = cpSpCategory->EnumTokens( NULL, NULL, &cpSpEnumTokens )))
+	{	return( -1 );
+	}
+	hr = cpSpEnumTokens->GetCount( &n );
+	if ( n > lengthof( tok )) n = lengthof( tok );
+	for ( cnt = i = 0; i < n; i++ )
+	{	hr = cpSpEnumTokens->Item( i, &tok[i]);
+		hr = tok[i]->GetId( &ws );
+		swprintf( buf, lengthof( buf ) - 1, L"%s\\Attributes", ws );
+		CoTaskMemFree( ws );
+		pName = RegGetString( HKEY_LOCAL_MACHINE, &buf[19], L"Name" );
+		pGender = RegGetString( HKEY_LOCAL_MACHINE, &buf[19], L"Gender" );
+		pLanguage = RegGetString( HKEY_LOCAL_MACHINE, &buf[19], L"Language" );
+		pAge = RegGetString( HKEY_LOCAL_MACHINE, &buf[19], L"Age" );
+		if ( p_VoiceSel )
+		{	swprintf( buf, lengthof( buf ) - 1, L"%s[%s %s %s]", pName, pGender, pAge, pLanguage );
+			if ( p_VoiceSel->FindString( -1, buf ) == CB_ERR )
+			{	p_VoiceSel->AddString( buf );
+				cnt++;
+		}	}
+		free( pAge );
+		free( pLanguage );
+		free( pGender );
+		free( pName );
+	}
+	return ( cnt );
+}
+
+
 int makeVoiceList( CComboBox *p_VoiceSel )
-{	static wchar_t *pszRegistryEntry[] =
-	{	SPCAT_VOICES,
-		L"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Speech_OneCore\\Voices",
-		L"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Speech Server\\v11.0\\Voices"
-	};
+{	int i;
+
+	for ( i = 0;  pszRegistryEntry[i] != NULL; i++ )
+	{	makeVoiceListAdd( p_VoiceSel, pszRegistryEntry[i]);
+	}
+	return ( p_VoiceSel->GetCount());
+#if 0
 	static wchar_t *pszRef[] =
 	{	L"", L"OneCore", L"Server"
 	};
-	ISpVoice						*pVoice = NULL;
+//	ISpVoice						*pVoice = NULL;
 //	CComPtr <ISpObjectToken>		cpToken[8];
 	CComPtr<ISpObjectToken>			cpToken[8];
 	CComPtr <IEnumSpObjectTokens>	cpEnum;
@@ -91,13 +144,15 @@ int makeVoiceList( CComboBox *p_VoiceSel )
 	ULONG i, n, cnt;
     LPWSTR ws;
 
+#if 0
 	if ( FAILED( ::CoInitialize( NULL )))
 	{	return( -1 );
 	}
 	if ( S_OK != ( hr = CoCreateInstance( CLSID_SpVoice, NULL, CLSCTX_ALL, IID_ISpVoice, ( void ** )&pVoice )))
 	{	return( -1 );
 	}
-//	if ( S_OK != ( hr = SpGetCategoryFromId( SPCAT_VOICES, &cpSpCategory )))
+#endif
+	//	if ( S_OK != ( hr = SpGetCategoryFromId( SPCAT_VOICES, &cpSpCategory )))
 	if ( S_OK != ( hr = SpGetCategoryFromId( L"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Speech_OneCore\\Voices", &cpSpCategory )))
 	{	return( -1 );
 	}
@@ -216,6 +271,7 @@ int makeVoiceList( CComboBox *p_VoiceSel )
 	}
 #endif
 	return ( i );
+#endif
 }
 
 

@@ -1,6 +1,10 @@
 
 // MecaDokuDlg.h : ヘッダー ファイル
 //
+//
+// 再生中にWM_CLOSEが来た際、クリティカルセクションを削除するが
+// その後次の再生テキスト取得メッセージが来てクリティカルセクションにアクセスしエクセプションが発生する対策
+//
 
 #pragma once
 #include "afxwin.h"
@@ -69,6 +73,7 @@ protected:
 	HICON m_hIcon;
 	CWinThread *pThread;
 	HACCEL m_hAccel;
+	BOOL	fgEcxec;
 
 	// 生成された、メッセージ割り当て関数
 	virtual BOOL OnInitDialog();
