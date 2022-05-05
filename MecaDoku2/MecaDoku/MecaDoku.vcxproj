@@ -194,6 +194,8 @@
     <ClInclude Include="MecaDoku.h" />
     <ClInclude Include="MecaDokuDlg.h" />
     <ClInclude Include="PartEdit.h" />
+    <ClInclude Include="PdfRdTxt.h" />
+    <ClInclude Include="RdPdfTkn.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SarchCsv.h" />
     <ClInclude Include="SettingTab.h" />
@@ -213,9 +215,12 @@
       <MultiProcessorCompilation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</MultiProcessorCompilation>
     </ClCompile>
     <ClCompile Include="PartEdit.cpp" />
+    <ClCompile Include="pdf2txt.cpp" />
+    <ClCompile Include="pdfRdTxt.cpp" />
     <ClCompile Include="PlayAqtk.cpp" />
     <ClCompile Include="PlaySapi.cpp" />
     <ClCompile Include="process.cpp" />
+    <ClCompile Include="RdPdfTkn.cpp" />
     <ClCompile Include="SarchCsv.cpp" />
     <ClCompile Include="SettingTab.cpp" />
     <ClCompile Include="Setting_Aqtk10.cpp" />

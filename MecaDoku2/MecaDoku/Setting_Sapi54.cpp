@@ -10,6 +10,8 @@
 #include <sapi.h>
 #include <sphelper.h>
 
+extern wchar_t	szVoiceVoxPath[_MAX_PATH];
+BOOL fgVoiceVox = FALSE;
 extern struct SAPI54SETTING	sapi54;
 wchar_t *pszRegistryEntry[] =
 {	SPCAT_VOICES,
@@ -17,6 +19,7 @@ wchar_t *pszRegistryEntry[] =
 	L"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Speech Server\\v11.0\\Voices",
 	NULL
 };
+PROCESS_INFORMATION	VoiceVoxProcessInfomation = { 0 };
 
 
 // CSetting_Sapi54 ダイアログ
@@ -46,6 +49,7 @@ void CSetting_Sapi54::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_VOLUMEVAL, m_VolumeVal);
 	DDX_Control(pDX, IDC_MODESEL, m_ModeSel);
 	DDX_Control(pDX, IDC_AFTMUONEDIT, m_AftMuonms);
+	DDX_Control(pDX, IDC_VOICEVOX_DIR, m_VoiceVoxPath);
 }
 
 
@@ -54,6 +58,7 @@ BEGIN_MESSAGE_MAP(CSetting_Sapi54, CDialogEx)
 	ON_CBN_SELCHANGE(IDC_VOICESEL, &CSetting_Sapi54::OnSelchangeVoicesel)
 	ON_CBN_SELCHANGE(IDC_MODESEL, &CSetting_Sapi54::OnSelchangeModesel)
 	ON_EN_CHANGE(IDC_AFTMUONEDIT, &CSetting_Sapi54::OnChangeAftmuonedit)
+	ON_BN_CLICKED(IDC_VOICEVOXREF, &CSetting_Sapi54::OnClickedVoicevoxref)
 END_MESSAGE_MAP()
 
 //	CComboBox m_VoiceSel;
@@ -302,6 +307,7 @@ void CSetting_Sapi54::InitialUpdate()
 	makeVoiceList( &m_VoiceSel );
 	m_VoiceSel.SetCurSel( sapi54.iVoiceSel );
 	SetVoiceName();
+	m_VoiceVoxPath.SetWindowTextW( szVoiceVoxPath );
 }
 
 
@@ -381,4 +387,18 @@ void CSetting_Sapi54::OnChangeAftmuonedit()
 	}
 	sapi54.iMuonMs = MuonMs;	// 
 }
+
+
+void CSetting_Sapi54::OnClickedVoicevoxref()
+{	CFileDialog Dlg( TRUE, ( LPCTSTR )L"exe", ( LPCTSTR )L"run.exe", OFN_HIDEREADONLY | OFN_EXTENSIONDIFFERENT | OFN_NOCHANGEDIR,
+			( LPCTSTR )L"VOICEVOX (*.exe)|*.exe|All Files (*.*)|*.*||" );
+
+	Dlg.m_ofn.lpstrFile = ( LPWSTR )&szVoiceVoxPath[0];
+	if ( Dlg.DoModal() != IDOK )
+	{	return;
+	}
+	wcscpy_s( &szVoiceVoxPath[0], lengthof( szVoiceVoxPath ), Dlg.m_ofn.lpstrFile );
+	m_VoiceVoxPath.SetWindowTextW( Dlg.m_ofn.lpstrFile );
+}
+
 

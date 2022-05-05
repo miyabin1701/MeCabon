@@ -284,6 +284,24 @@ https://taku910.github.io/mecab/learn.html
 https://www.a-quest.com/index.html
 
 
+　2022/04　追記
+・VOICEVOXの音声をSAPIで選択できるようにしました。
+　　VOICEVOXとSAPIForVOICEVOXを使わせていただきました。有難うございます。
+　　MicrosoftのHarukaさん達の様に、変換音声の前後に長い無音区間が入らないようで聞き取りやすいです。
+
+　ヒホさんのVOICEVOX
+	https://voicevox.hiroshiba.jp/
+	https://github.com/VOICEVOX
+
+　shigobuさんのSAPIForVOICEVOX
+	https://github.com/shigobu/SAPIForVOICEVOX
+
+　VOICEVOXは内部でJTALKを、JTALKは内部でMeCabを呼び出しています。
+　JTALK用のMeCab辞書は、通常のMeCab辞書に２つの追加データが入っているため、今後、JTALK下のMeCab辞書を
+　更新するようにしなければなりません。現状では、通常辞書のMeCabでかな変換後VOICEVOXに渡しているため、
+　JTALKのアクセント、イントネーションが生かされません。
+
+
 参考にさせていただいたサイト
 
 ・新語登録時に品詞や形態素について
@@ -319,6 +337,46 @@ https://qiita.com/aki___/items/2b62486d59c7b74f27ec
 
 　ビルド時に必要なAquesTalkのヘッダーや.libファイル等(aqtk10_win_110.zip)はアクエストさんのHPからダウンロードしてください。
 	https://www.a-quest.com/
+
+
+　2022/04　追記
+・VOICEVOXの音声をSAPIで選択できるようにしました。
+　　VOICEVOXとSAPIForVOICEVOXを使わせていただきました。有難うございます。
+　　MicrosoftのHarukaさん達の様に、変換音声の前後に長い無音区間が入らないようで聞き取りやすいです。
+
+　ヒホさんのVOICEVOX
+	https://voicevox.hiroshiba.jp/
+	https://github.com/VOICEVOX
+
+　shigobuさんのSAPIForVOICEVOX
+	https://github.com/shigobu/SAPIForVOICEVOX
+
+　VOICEVOXは内部でpyopenjtalkを、pyopenjtalkは内部でMeCab辞書を読み出しています。
+　JTALK用のMeCab辞書は、通常のMeCab辞書に２つの追加データが入っているため、今後、JTALK下のMeCab辞書を
+　更新するようにしなければなりません。現状では、通常辞書のMeCabでかな変換後VOICEVOXに渡しているため、
+　JTALKのアクセント、イントネーションが生かされません。
+
+ 2022/05 追記
+・VOICEVOXのrun.exeの自動起動を追加しました。また、辞書ビルドの際はrun.exeを自動終了します。
+　run.exeは起動後十数秒間データを受け付けられない時間が存在します。SAPIForVOICEVOX側で受け付けら
+　れない時にエクセプションにならない対策を講じていただきましたが、その間に送ったデータは読み上げ
+　られずに抜けてしまいます。この対策として、run.exeの標準出力をパイプでキャプチャーして準備完了
+　メッセージが出力されるのを待つようにしました。標準出力のパイプリダイレクトのため、その後も
+　run.exeの起動中はずっと読み捨てしているためだけのスレッドが稼働しています。
+　他に軽いrun.exeの準備完了判断方法御座いましたら教えてください。
+
+・小説家になろうサイトの縦書きPDF（ヒナプロジェクト）のテキスト入りPDFファイルの自動テキストファ
+　イル変換機能を追加しました。ページ番号とルビの自動抜き機能を含んでいます。まだ、評価機能程度と
+　認識してお使いください。テキストファイルと同様にpdfファイルをドロップするだけで、テキストファ
+　イル化して、そのテキストファイルを読みこみます。（テキスト化しておかないと、長い小説の続きを聞
+　きたいときにポップアップメニューの続き読み機能が効かないかと思いました。）
+　Rich Geldreich <richgel99@gmail.com>さんのminiz.c v1.15を圧縮ストリームの展開に使わせていた
+　だきました。
+
+・現在、これまでMecab用に構築してきた辞書をVOICEVOXで使えるよう、辞書のビルドを可能にしたいと考
+　えています。ただ、辞書のJtalk用の追加の２つのデータでjtalk用の辞書に無い語彙は機械的には調整
+　できませんので、定型で追加します。",0/n,*"（nは読みの文字数）各語彙のアクセント調整をしてい
+　ただける方募集中です。
 
 
 それでは、皆様の本聞きライフがより良いものとなりますように

@@ -40,6 +40,9 @@ extern void appVolSet( USHORT vol );
 extern USHORT appVolGet();
 extern DWORD GetFileSize( wchar_t *Path );
 extern int aqtk10waveInitialize2();
+extern wchar_t *exchgExt( wchar_t *szFile, wchar_t *szNewExt );
+extern void Pdf2Txt( wchar_t *szFile );
+
 extern BOOL	fgBgBlack;
 
 extern TTSNAME	SelectTts;
@@ -1132,6 +1135,7 @@ static DWORD CALLBACK StreamInCallback( DWORD dwCookie, LPBYTE pbBuff, LONG cb, 
 //} OVERLAPPED, *LPOVERLAPPED;
 
 
+#if 0
 void CMecaDokuDlg::LoadPdf( wchar_t *szFile )
 {
 	nCodePage = 0;
@@ -1156,6 +1160,7 @@ void CMecaDokuDlg::LoadPdf( wchar_t *szFile )
 
 
 }
+#endif
 
 
 void CMecaDokuDlg::LoadText( wchar_t *szFile )	// txt loader
@@ -1253,17 +1258,20 @@ void CMecaDokuDlg::OnDropFiles(HDROP hDropInfo)
 
 		_wsplitpath( szFile, drive, dir, fname, ext );
 	}
-/*
 	if ( wcscmp( ext, L".pdf" ) == 0 )
-	{	LoadPdf( szFile );				// pdf loader
-		return;
+	{	CWaitCursor	wait;
+		wchar_t *pszOutFile;
+	
+		Pdf2Txt( szFile );				// pdf loader
+		pszOutFile = exchgExt( szFile, L".txt" );
+		wcscpy( szFile, pszOutFile );
+		free( pszOutFile );
+		LoadText( szFile );				// txt loader
 	}
-	else
-*/
 	if ( wcscmp( ext, L".txt" ) != 0 )
 	{	return;
 	}
-	LoadText( szFile );				// txt loader
+	LoadText( szFile );					// txt loader
 //	CDialogEx::OnDropFiles(hDropInfo);
 }
 

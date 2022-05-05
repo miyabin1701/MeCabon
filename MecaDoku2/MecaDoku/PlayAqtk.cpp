@@ -61,10 +61,15 @@ extern TTSNAME			SelectTts;
 extern enum PLAYSTATE	iPlayState;
 void __stdcall			StaticWaveOutProc( HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance,
                                            DWORD dwParam1, DWORD dwParam2 );
+extern DWORD StartProcess( _TCHAR *processPath, _TCHAR *processOption, _TCHAR *execFolder, PROCESS_INFORMATION *pProcInfo );
+extern void EndProcess( PROCESS_INFORMATION *pProcInfo );
 extern wchar_t *m_szWFileName;	// grobal for free
 extern struct SAPI54SETTING	sapi54;
 extern wchar_t *exchgFileName( wchar_t *pszDest, wchar_t *pszPath, wchar_t *pszfileName );
 extern wchar_t *pszRegistryEntry[];
+extern wchar_t	szVoiceVoxPath[_MAX_PATH];
+extern BOOL fgVoiceVox;
+extern PROCESS_INFORMATION	VoiceVoxProcessInfomation;
 
 
 //#define	MAX_LINE	4096
@@ -340,6 +345,7 @@ void UniToUTF8( char *pszUni, char *pszUtf8, int lenUtf8 )
 	int iLenUtf8 = WideCharToMultiByte( CP_UTF8, 0, ( wchar_t * )pszUni, iLenUnicode, NULL, 0, NULL, NULL );
 	if ( iLenUtf8 <= lenUtf8 )
 	{	WideCharToMultiByte( CP_UTF8, 0, ( wchar_t * )pszUni, iLenUnicode, pszUtf8, lenUtf8, NULL, NULL );
+		*( pszUtf8 + iLenUtf8 ) = EOS;
 	}
 }
 
@@ -1091,6 +1097,7 @@ struct mecab_dictionary_info_t {
 		if ( SUCCEEDED( hr ))		// Voice を指定します。
 		{	int i;
 
+			fgVoiceVox = FALSE;
 			for ( i = 0;  pszRegistryEntry[i] != NULL; i++ )
 			{	hr = SpEnumTokens( pszRegistryEntry[i], sapi54.pszVoiceName, NULL, &cpEnum );	//Cortana voice
 				if ( cpEnum != NULL )
@@ -1098,6 +1105,9 @@ struct mecab_dictionary_info_t {
 			}	}
 			if ( cpEnum == NULL )
 			{	// 指定のVoiceが見つからなかったら・・・
+			}
+			else if ( wcsstr( sapi54.pszVoiceName, L"VOICEVOX" ) != NULL )
+			{	fgVoiceVox = TRUE;
 			}
 //			hr = SpEnumTokens( L"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Speech_OneCore\\Voices", sapi54.pszVoiceName, NULL, &cpEnum );	//Cortana voice
 //			hr = SpEnumTokens( SPCAT_VOICES, L"language = 411", NULL, &cpEnum );	// 属性L "language = 411"の音声トークンを列挙します。
@@ -1115,6 +1125,9 @@ struct mecab_dictionary_info_t {
 		{	hr = pVoice->SetOutput( cpAudioOutToken, TRUE );
 		}
 		hr = pVoice->SetVolume( 60 );	// 0 - 100
+		if ( fgVoiceVox == TRUE )
+		{	StartProcess( NULL, szVoiceVoxPath, NULL, &VoiceVoxProcessInfomation );
+		}
 	}
 	else if ( SelectTts == AQTK10 )
 	{
@@ -1551,6 +1564,10 @@ int fainalize_dlls()
 		if ( m_szWFileName != ( wchar_t * )NULL )
 		{	free( m_szWFileName );
 			m_szWFileName = ( wchar_t * )NULL;
+		}
+		if ( fgVoiceVox == TRUE )
+		{	EndProcess( &VoiceVoxProcessInfomation );
+			fgVoiceVox = FALSE;
 		}
 	}
 	else if ( SelectTts == AQTK10 )

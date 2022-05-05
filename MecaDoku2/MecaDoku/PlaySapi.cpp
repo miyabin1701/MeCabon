@@ -490,6 +490,8 @@ int lineCvtAndPlaySapi( wchar_t *pmbstring, struct PLAYINGSENTENCE *ps )
 			CSpStreamFormat OriginalFmt;
 			CComPtr <ISpStream> cpWavStream;
 			CComPtr <ISpStreamFormat> cpOldStream;
+			try
+			{
 #ifndef PIPE
 //			wchar_t *m_szWFileName = L"test.wav";
 //			wchar_t *m_szWFileName = ( wchar_t * )NULL;		// grobal for free std::getenv("HOME")	GetTempPath	_wtempnam
@@ -691,6 +693,9 @@ int lineCvtAndPlaySapi( wchar_t *pmbstring, struct PLAYINGSENTENCE *ps )
 			LeaveCriticalSection( &cstPlayRec );
 #endif
 			break;
+		}	catch( ... )
+			{	continue;
+			}
 		}
 		numbers[0] = bufHiraganaJis[0] = EOS;
 	}

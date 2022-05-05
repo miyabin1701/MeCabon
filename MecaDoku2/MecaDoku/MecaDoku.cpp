@@ -16,6 +16,7 @@ wchar_t	szUserDictionary[_MAX_PATH];
 wchar_t	szSysDictionary[_MAX_PATH];
 wchar_t	szSysDicWork[_MAX_PATH];
 wchar_t	szTextEditor[_MAX_PATH];
+wchar_t	szVoiceVoxPath[_MAX_PATH];
 wchar_t	szEditOpt[64];
 wchar_t	szCharSetUserCsv[32]		= L"UTF-8";
 wchar_t	szCharSetUserDic[32]		= L"UTF-8";
@@ -48,6 +49,7 @@ const wchar_t	lpszfgBgBlack[]			= L"lpszfgBgBlack";
 
 const wchar_t	lpszRecentFileName[]	= L"RecentFileName";
 const wchar_t	lpszRecentFileLine[]	= L"RecentFileLine";
+const wchar_t	lpszVoiceVoxPath[]		= L"VoiceVoxPath";
 
 LONG	editcharHeight;
 
@@ -175,6 +177,7 @@ void CMecaDokuApp::LoadProfile()
 	wcscpy_s( RecentFile, lengthof( RecentFile ), ( LPCTSTR )GetProfileString( lpszEnvSection, lpszRecentFileName, L"" ));
 	lpszRecentFile = wcsdup( RecentFile );
 	iNxtLineNo = ( long )GetProfileInt( lpszEnvSection, lpszRecentFileLine, 0 );
+	wcscpy_s( szVoiceVoxPath, lengthof( szVoiceVoxPath ), ( LPCTSTR )GetProfileString( lpszEnvSection, lpszVoiceVoxPath, L"" ));
 }
 
 
@@ -204,6 +207,7 @@ void CMecaDokuApp::SaveProfile()
 	WriteProfileInt( lpszEnvSection, lpszfgBgBlack, fgBgBlack );
 	WriteProfileString( lpszEnvSection, lpszRecentFileName, lpszRecentFile );
 	WriteProfileInt( lpszEnvSection, lpszRecentFileLine, iNxtLineNo );
+	WriteProfileString( lpszEnvSection, lpszVoiceVoxPath, szVoiceVoxPath );
 }
 
 

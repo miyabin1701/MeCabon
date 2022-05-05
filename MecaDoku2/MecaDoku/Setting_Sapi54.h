@@ -32,4 +32,6 @@ public:
 	afx_msg void OnSelchangeModesel();
 	CEdit m_AftMuonms;
 	afx_msg void OnChangeAftmuonedit();
+	afx_msg void OnClickedVoicevoxref();
+	CEdit m_VoiceVoxPath;
 };
