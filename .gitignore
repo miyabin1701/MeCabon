@@ -9,6 +9,7 @@ MecaDoku2/MecaDoku/*.dll
 MecaDoku2/MecaDoku/*.wav
 MecaDoku2/MecaDoku/Debug/
 MecaDoku2/MecaDoku/x64/
+MecaDoku2/MecaDoku/*.zip
 MecaDoku2/MecaDoku/AquesTalk.*
 MecaDoku2/ipch/
 MecaDoku2/Debug/
@@ -24,3 +25,4 @@ MecaDoku2/x64/Release/*.lib
 MecaDoku2/x64/Release/*.exp
 MecaDoku2/x64/Release/*.zip
 MecaDoku2/x64/Release/AquesTalk.*
+MecaDoku2/*.zip

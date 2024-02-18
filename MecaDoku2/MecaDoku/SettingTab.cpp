@@ -50,10 +50,12 @@ void CSettingTab::InitialUpdate()
 
 	m_SettingTab.InsertItem( 0, L"Mecab" );
 	m_SettingTab.InsertItem( 1, L"Sapi5.4" );
-	m_SettingTab.InsertItem( 2, L"Aqtk10" );
-	m_SettingTab.InsertItem( 3, L"Other" );
+	m_SettingTab.InsertItem( 2, L"VoiceVox" );	//	IDD_SETTING_VOICEVOX
+	m_SettingTab.InsertItem( 3, L"Aqtk10" );
+	m_SettingTab.InsertItem( 4, L"Other" );
 	m_TtsSelector.AddString(( LPCTSTR )L"SAPI5.4" );
 	m_TtsSelector.AddString(( LPCTSTR )L"AQTK10" );
+	m_TtsSelector.AddString(( LPCTSTR )L"VOICEVOX" );
 	m_TtsSelector.SetCurSel( SelectTts );
 
 	mp_SettingMecab = new CSetting_Mecab( &m_SettingTab );

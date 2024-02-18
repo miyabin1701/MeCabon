@@ -178,7 +178,7 @@ void Pdf2Txt( wchar_t *szFile )
 		if ( page == 0 )
 		{	analizCodePage(( char * )ReadBuf, pageLen );
 		}
-		if ( ReadBuf[0] != '\0' )
+		if (( ReadBuf[0] | ReadBuf[1]) != 0 )	// 23/09/03 ユニコード(utf16)なので2バイト単位 
 		{	UniToUTF8(( char * )ReadBuf, ( char * )Utf8Buf,  sizeof( Utf8Buf ));
 			fprintf( fp,  "%s\n", Utf8Buf );
 	}	}

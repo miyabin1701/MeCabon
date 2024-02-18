@@ -42,6 +42,7 @@ extern DWORD GetFileSize( wchar_t *Path );
 extern int aqtk10waveInitialize2();
 extern wchar_t *exchgExt( wchar_t *szFile, wchar_t *szNewExt );
 extern void Pdf2Txt( wchar_t *szFile );
+extern int initial_DevKey();								// aquest
 
 extern BOOL	fgBgBlack;
 
@@ -102,7 +103,7 @@ DWORD GetFileSize( wchar_t *Path )
 {	struct _wfinddata64_t c_file;
 
 	if ( _wfindfirst64( Path, &c_file ) == -1L )
-	{	return ( -1 );
+	{	return ( 0 );
 	}
 	return (( DWORD )c_file.size );
 }
@@ -134,12 +135,27 @@ int splitSentence( wchar_t *pszLine )
 UINT preTalkThread( LPVOID pParam )
 {	CMecaDokuDlg* pObj = ( CMecaDokuDlg * )pParam;
 	int	iQueCntCpy;
+	int	ierrorcode;
 	wchar_t *pnonSpace;
+	TTSNAME	currentTts;
 
-	if ( initial_dlls() != 0 )								// mecab & aquest & wave
-	{	AfxMessageBox( L"DLL オープンエラー！設定をご確認ください" );
+	if (( ierrorcode = initial_dlls()) != 0 )								// mecab & aquest & wave
+	{	if ( ierrorcode < 200 )
+		{	if ( ierrorcode == 151 )
+			{	AfxMessageBox( L"libmecab.dll オープンエラー、または、辞書のetcフォルダーにmecabrcファイルが在りません" );
+			}
+			else
+			{	AfxMessageBox( L"libmecab.dll オープンエラー！設定をご確認ください" );
+		}	}
+		else if ( ierrorcode < 1000 )
+		{	AfxMessageBox( L"sapi関連エラー！設定をご確認ください" );
+		}
+		else
+		{	AfxMessageBox( L"AquesTalk 関連エラー！設定をご確認ください" );	// レジストコードを設定してるだけなのでエラーにならない
+		}
 		return ( 0 );
 	}
+	currentTts = SelectTts;
 	pObj->PostMessageW( UM_REQUEST_NEXTLINE, iQueOut = 0, 0 );
 	pObj->PostMessageW( UM_REQUEST_NEXTLINE, 1, 0 );
 //	pObj->PostMessageW( UM_ENABLE_VOLUMESLIDER, 0, 0 );
@@ -159,9 +175,14 @@ UINT preTalkThread( LPVOID pParam )
 				ps.iLineNo = 0;
 				if ( SelectTts == SAPI54 )
 				{	lineCvtAndPlaySapi( L"", &ps );
+					currentTts = SelectTts;
 				}
 				else
-				{	lineCvtAndPlay( L"", &ps );
+				{	if ( currentTts != AQTK10 )
+					{	initial_DevKey();							// aquest
+					}
+					lineCvtAndPlay( L"", &ps );
+					currentTts = SelectTts;
 				}
 				continue;
 			}

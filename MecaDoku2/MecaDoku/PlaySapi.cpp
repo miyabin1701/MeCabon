@@ -562,7 +562,10 @@ int lineCvtAndPlaySapi( wchar_t *pmbstring, struct PLAYINGSENTENCE *ps )
 			else
 			{	hr = pVoice->Speak(( wchar_t* )numbers, SPF_ASYNC, NULL );
 			}
-			pVoice->WaitUntilDone( INFINITE );		// パイプ出力にすると返ってこない 
+//			if ( !pVoice->WaitUntilDone( INFINITE ))		// パイプ出力にすると返ってこない 
+			if ( !pVoice->WaitUntilDone( 5000 ))			// 5秒で戻らなければエラー パイプ出力にすると返ってこない 
+			{	
+			}
 			cpWavStream.Release();
 //			元のストリームに再配置//出力
 			pVoice->SetOutput( cpOldStream, FALSE );

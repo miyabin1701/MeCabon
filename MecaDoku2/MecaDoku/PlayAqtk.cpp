@@ -923,9 +923,19 @@ mecab_model_t *mecab_model_new_build_option()
 	UniToUTF8(( char * )szSysDictionary, szSysDic, sizeof( szSysDic ) - 1 );
 	strcpy( szUsrDic, szSysDic );
 	if (( p = strstr( szUsrDic, "work\\" )) != NULL )
-	{	strcpy( p, "etc\\mecabrc" );
+	{	struct __finddata64_t c_file;
+
+		strcpy( p, "etc\\mecabrc" );
 		ppArgv[iIdxArg++] = "-r";
 		ppArgv[iIdxArg++] = szUsrDic;
+		if ( _findfirst64( szUsrDic, &c_file ) == -1L )		// ファイル存在確認 
+		{	wchar_t msgBuff[_MAX_PATH * 2], pathBuff[_MAX_PATH * 2];
+
+			UTF8ToUni( szUsrDic, ( char * )pathBuff, sizeof( pathBuff ));
+			swprintf( msgBuff, L"辞書のmecabrcファイル[%s}が在りません", pathBuff );
+			AfxMessageBox( msgBuff );
+			return ( NULL );
+		}
 //		ppArgv[iIdxArg++] = "D:\\Tools\\MeCabon\\mecab-0.996\\etc\\mecabrc";
 	}
 	if ( szSysDictionary[0] != EOS )
@@ -1055,6 +1065,15 @@ long getmecabDllLastError()
 }
 
 
+int initial_DevKey()								// aquest
+{
+#ifdef AQTK10REGISTCODE								// ライセンスコードが未定義ならセットしない 
+	AquesTalk_SetDevKey( AQTK10REGISTCODE ); 
+#endif
+	return ( 0 );
+}
+
+
 int initial_dlls()									// mecab & aquest & wave
 {
 	if ( OpenMecabDll() == NULL )
@@ -1062,10 +1081,10 @@ int initial_dlls()									// mecab & aquest & wave
 	}
 	OkMecab = FALSE;
 	if (( model = mecab_model_new_build_option()) == NULL )
-	{	return ( -1 );
+	{	return ( -151 );
 	}
 	if (( mecab = fpmecab_model_new_tagger( model )) == NULL )
-	{	return ( -1 );
+	{	return ( -152 );
 	}
 	const mecab_dictionary_info_t *pDict = fpmecab_dictionary_info( mecab );
 /*
@@ -1082,7 +1101,7 @@ struct mecab_dictionary_info_t {
 */
 	if (( lattice = fpmecab_model_new_lattice( model )) == NULL )
 	{	fpmecab_destroy( mecab );
-		return ( -1 );
+		return ( -153 );
 	}
 	OkMecab = TRUE;
 	if ( SelectTts == SAPI54 )
@@ -1091,7 +1110,7 @@ struct mecab_dictionary_info_t {
 		CComPtr <IEnumSpObjectTokens>	cpEnum;
 
 		if ( FAILED( ::CoInitialize( NULL )))
-		{	return( -1 );
+		{	return( -201 );
 		}
 		HRESULT hr = CoCreateInstance( CLSID_SpVoice, NULL, CLSCTX_ALL, IID_ISpVoice, ( void ** )&pVoice );
 		if ( SUCCEEDED( hr ))		// Voice を指定します。
@@ -1137,7 +1156,7 @@ struct mecab_dictionary_info_t {
 		//openjtalk_setVerbose(true);
 		OpenJTalk *oj = openjtalk_initialize( NULL, NULL, NULL );
 		if ( oj == NULL )
-		{	return ( -1 );
+		{	return ( -1001 );
 		}
 #ifdef _WIN32
 		HtsVoiceFilelist *list = openjtalk_getHTSVoiceListSjis( oj );
@@ -1161,6 +1180,7 @@ struct mecab_dictionary_info_t {
 		voice				= gVoice_F1;							// 声質パラメータ
 		voice.spd			= 90;	
 		voice.vol			= 20;
+		initial_DevKey();
 #ifdef AQTK10REGISTCODE												// ライセンスコードが未定義ならセットしない 
 		AquesTalk_SetDevKey( AQTK10REGISTCODE ); 
 #endif
@@ -1200,7 +1220,7 @@ struct mecab_dictionary_info_t {
 				std::cout << "other error." << std::endl;
 				break;
 			}
-			return ( -1 );
+			return ( -1002 );
 		}
 #endif
 #endif
